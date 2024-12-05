@@ -1,0 +1,12 @@
+Keys for Table Student:
+Masv
+
+Keys for Table Class:
+Malop
+
+Keys for Table Teacher:
+Magv, TrinhDo
+
+Keys for Table Teacher:
+Ten
+

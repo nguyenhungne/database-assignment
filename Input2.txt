@@ -1,0 +1,17 @@
+Table Student: (Masv, Hoten, Malop)
+Functional dependencies:
+Masv -> Hoten
+Masv -> Malop
+
+Table Class: (Malop, Tenlop)
+Functional dependencies:
+Malop -> Tenlop
+
+Table Teacher: (Magv, Ten, TrinhDo)
+Functional dependencies:
+Magv -> Ten
+
+Table Teacher: (Magv, Ten, TrinhDo)
+Functional dependencies:
+Ten -> Ten, TrinhDo
+Magv, Ten -> TrinhDo
