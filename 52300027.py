@@ -7,7 +7,7 @@ def extract_info(line):
     pattern_table_name = r"\[([A-Za-z\s]+)\]"
     pattern_attributes = r"\(([^)]+)\)"
     pattern_pk = r"([A-Za-z0-9\s]+: PK)"
-    pattern_relationship = r"(\d+\s?–\s?\d+|\w+\s?–\s?\w+)"
+    pattern_relationship = r"(\d+\s?-\s?\d+|\w+\s?-\s?\w+)"
     
     # Table 1
     table_1 = re.search(pattern_table_name, line)
@@ -37,36 +37,37 @@ def extract_info(line):
     
     return info
 
-def build_table_from_data(data, is_nhieu_nhieu=False):
+def build_table_from_data(data, is_many_to_many=False):
     table_1 = data['table_1']
     attributes_1 = data['attributes_1'].split(', ')
     pk_1 = data['pk_1']
+    fk_1 = data.get('fk_1', None)
     
     table_2 = data['table_2']
     attributes_2 = data['attributes_2'].split(', ')
     pk_2 = data['pk_2']
+    fk_2 = data.get('fk_2', None)
     
     relationship = data['relationship']
     
     table_1_str = f"[{table_1}] ({', '.join(attributes_1)})"
     table_2_str = f"[{table_2}] ({', '.join(attributes_2)})"
 
-    if pk_1:
-        table_1_str += f" ({pk_1}: PK)"
-    if pk_2:
-        table_2_str += f" ({pk_2}: PK)"
-    
-    if is_nhieu_nhieu:
-        intermediate_table_str = f"[{table_1}_{table_2}] ({pk_1}, {pk_2}: PK)"
+    if fk_1:
+        table_1_str += f" ({fk_1}: FK)"
+    if fk_2:
+        table_2_str += f" ({fk_2}: FK)"
 
-        result = f"{table_1_str} – {intermediate_table_str} – {table_2_str}: {relationship}"
+    if is_many_to_many:
+        intermediate_table_str = f"[{table_1} {table_2}] ({pk_1}, {pk_2})"
+
+        result = f"{table_1_str} - {intermediate_table_str} - {table_2_str}: {relationship}"
 
         return result
     
-    result = f"{table_1_str} – {table_2_str}: {relationship}"
+    result = f"{table_1_str} - {table_2_str}: {relationship}"
     return result
 
-# Hàm convert_erd_to_relational tích hợp với extract_info
 def convert_erd_to_relational(input_file, output_file):
     with open(input_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -81,47 +82,53 @@ def convert_erd_to_relational(input_file, output_file):
         info = extract_info(line)
         
         relationship = info['relationship']
-        if relationship == '1 – n':
+        if relationship == '1 - n':
             new_info = {
                 **info,
-                "attributes_2": f"{info['attributes_2']}, {info['pk_1']}"
+                "attributes_2": f"{info['attributes_2']}, {info['pk_1']}",
+                "fk_2": info['pk_1'],
             }
             output_lines.append(build_table_from_data(new_info))
-        elif relationship == 'n – 1':
+        elif relationship == 'n - 1':
             new_info = {
                 **info,
-                "attributes_1": f"{info['attributes_1']}, {info['pk_2']}"
+                "attributes_1": f"{info['attributes_1']}, {info['pk_2']}",
+                "fk_1": info['pk_2'],
             }
             output_lines.append(build_table_from_data(new_info))
-        elif relationship == 'Cha – con':
+        elif relationship == 'Cha - con':
             new_info
             if info['pk_2']:
                 new_info = {
                     **info,
-                    "attributes_2": f"{info['pk_2']}, {info['attributes_1']}"
+                    "attributes_2": f"{info['pk_2']}, {info['attributes_1']}",
+                    "relationship": "1 - 1"
                 }
             else:
                 new_info = {
                     **info,
-                    "attributes_2": f"{info['attributes_1'].split(', ')[0]}, {info['attributes_2']}"
+                    "attributes_2": f"{info['attributes_1'].split(', ')[0]}, {info['attributes_2']}",
+                    "relationship": "1 - 1"
                 }
             output_lines.append(build_table_from_data(new_info))
-        elif relationship == 'Con – cha':
+        elif relationship == 'Con - cha':
             new_info
             if info['pk_1']:
                 new_info = {
                     **info,
-                    "attributes_1": f"{info['pk_1']}, {info['attributes_2']}"
+                    "attributes_1": f"{info['pk_1']}, {info['attributes_2']}",
+                    relationship: "1 - 1"
                 }
             else:
                 new_info = {
                     **info,
-                    "attributes_1": f"{info['attributes_2'].split(', ')[0]}, {info['attributes_1']}"
+                    "attributes_1": f"{info['attributes_2'].split(', ')[0]}, {info['attributes_1']}",
+                    relationship: "1 - 1"
                 }
             output_lines.append(build_table_from_data(new_info))
 
-        elif relationship == 'n – n':
-            output_lines.append(build_table_from_data(info, is_nhieu_nhieu=True))
+        elif relationship == 'n - n':
+            output_lines.append(build_table_from_data(info, is_many_to_many=True))
         else:
             output_lines.append(build_table_from_data(info))
 

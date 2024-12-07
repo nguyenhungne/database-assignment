@@ -1,2 +1,4 @@
-[Sinh vien] (Masv, hoten) (Masv: PK) – [Lop hoc] (MaLop, Tenlop) (Malop: PK): n – 1
-[Can Bo Cong nhan vien] (Mã số, Họ tên) – [Giang vien] (Trình độ, chuyên ngành): Cha – con
+[Sinh vien] (Masv, hoten) (Masv: PK) - [Lop hoc] (MaLop, Tenlop) (Malop: PK): n - 1
+[Can Bo Cong nhan vien] (Mã số, Họ tên) - [Giang vien] (Trình độ, chuyên ngành): Cha - con
+[Sinh vien] (Masv, hoten) (Masv: PK) - [Lop hoc] (MaLop, Tenlop) (Malop: PK): n - n
+[Player] (PlayerID, PlayerName, Balance) (PlayerID: PK) - [Item] (ItemID, ItemType, ItemName) (ItemID: PK): n - n
